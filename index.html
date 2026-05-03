@@ -8,13 +8,13 @@
         body {
             font-family: sans-serif;
             padding: 15px;
-            background: #f9f9f9;
+            background: #f5f5f5;
         }
         .container {
-            max-width: 420px;
+            max-width: 500px;
             margin: auto;
             background: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
@@ -25,87 +25,99 @@
             font-size: 16px;
             border-radius: 8px;
             border: 1px solid #ddd;
+            box-sizing: border-box;
         }
         button {
             background: #4CAF50;
             color: white;
             border: none;
+            font-weight: bold;
+            cursor: pointer;
         }
         .result {
             margin-top: 20px;
             text-align: center;
         }
-        table {
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+        table.grid {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
+            margin: 10px 0;
         }
-        td {
-            border: 2px solid #ccc;
-            padding: 12px 4px;
-            vertical-align: top;
-            width: 33%;
+        table.grid td {
+            border: 2px solid #999;
+            padding: 8px 4px;
+            text-align: center;
+            vertical-align: middle;
+            height: 50px;
             background: #fff;
-        }
-        .cell-number {
-            font-size: 28px;
             font-weight: bold;
-            color: #4CAF50;
-            margin-bottom: 5px;
-        }
-        .count {
             font-size: 14px;
-            margin-bottom: 8px;
-            color: #333;
+            color: #222;
         }
-        .desc {
+        table.grid td.empty-cell {
+            border: none;
+            background: transparent;
+        }
+        .label {
+            font-weight: bold;
             font-size: 13px;
-            color: #555;
-            line-height: 1.4;
+            background: #f0f0f0;
+        }
+        .value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .external {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .small-note {
+            font-size: 13px;
+            color: #666;
+            margin-top: 12px;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h3>Квадрат Пифагора по методу Ольги Перцевой</h3>
+    <h3>Психоматрица по методу Ольги Перцевой</h3>
     <p>Введите дату рождения:</p>
     <input type="text" id="dateInput" placeholder="ДД.ММ.ГГГГ" maxlength="10">
     <button onclick="calculate()">Рассчитать</button>
     <div id="result" class="result"></div>
 </div>
 <script>
-    function getDigits(dateStr) {
-        const digits = dateStr.replace(/\D/g, '').split('').map(Number);
-        const first = digits.reduce((a, b) => a + b, 0);
-        const second = String(first).split('').reduce((a, b) => a + Number(b), 0);
-        const third = first - 2 * digits[0];
-        const fourth = String(third).split('').reduce((a, b) => a + Number(b), 0);
-        const all = digits.concat(
-            String(first).split('').map(Number),
-            String(second).split('').map(Number),
-            String(third).split('').map(Number),
-            String(fourth).split('').map(Number)
-        );
-        return all.filter(d => d !== 0);
+    // Сумма цифр числа (игнорируем знак)
+    function sumDigits(num) {
+        return String(Math.abs(num)).split('').reduce((a, b) => a + Number(b), 0);
     }
 
-    function buildMatrix(digits) {
-        const matrix = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
-        digits.forEach(d => { if (d in matrix) matrix[d]++; });
-        return matrix;
+    // Доведение до однозначного, но 11 не трогаем
+    function reduceToFate(num) {
+        if (num === 11) return 11;
+        while (num > 9 && num !== 11) {
+            num = sumDigits(num);
+        }
+        return num;
     }
 
-    const miniTexts = {
-        1: {0:"Мягкий, уступчивый", 1:"Мягкий, с проблесками воли", 2:"Гармоничный характер", 3:"Лидерские качества", 4:"Сильный характер, возможна жесткость"},
-        2: {0:"Быстрая утомляемость", 1:"Энергии мало", 2:"Стабильный уровень энергии", 3:"Высокая энергетика", 4:"Очень много энергии"},
-        3: {0:"Гуманитарный склад", 1:"Творческое мышление", 2:"Способности к точным наукам", 3:"Аналитический ум", 4:"Выдающиеся способности"},
-        4: {0:"Слабый иммунитет", 1:"Здоровье требует внимания", 2:"Норма", 3:"Крепкое здоровье", 4:"Очень выносливый"},
-        5: {0:"Логика интуитивная", 1:"Логика развита слабо", 2:"Ясное мышление", 3:"Сильная интуиция", 4:"Дар предвидения"},
-        6: {0:"Творческая натура", 1:"Склонность к умственному труду", 2:"Ручной труд приносит радость", 3:"Мастер своего дела", 4:"Трудоголик"},
-        7: {0:"Удача достигается усилиями", 1:"Есть везение", 2:"Часто везёт", 3:"Любимчик судьбы", 4:"Избыток удачи"},
-        8: {0:"Свобода от обязательств", 1:"Чувство долга ситуативное", 2:"Ответственный", 3:"Гиперответственность", 4:"Постоянное чувство вины"},
-        9: {0:"Память нуждается в тренировке", 1:"Память средняя", 2:"Хорошая память", 3:"Мудрость, отличная память", 4:"Энциклопедическая память"}
-    };
+    function parseDate(dateStr) {
+        const parts = dateStr.split('.');
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10);
+        const year = parseInt(parts[2], 10);
+        // все цифры даты
+        const digits = (parts[0] + parts[1] + parts[2]).split('').map(Number);
+        return { day, month, year, digits };
+    }
 
     function calculate() {
         const dateStr = document.getElementById('dateInput').value.trim();
@@ -113,29 +125,102 @@
             alert('Введите дату в формате ДД.ММ.ГГГГ');
             return;
         }
-        const digits = getDigits(dateStr);
-        const matrix = buildMatrix(digits);
-        
-        // Формируем таблицу 3×3
-        let html = '<h4>Ваша психоматрица</h4><table>';
-        const order = [1,2,3,4,5,6,7,8,9];
-        for (let i = 0; i < 9; i += 3) {
-            html += '<tr>';
-            for (let j = 0; j < 3; j++) {
-                const num = order[i + j];
-                const cnt = matrix[num];
-                const cap = cnt > 4 ? 4 : cnt;
-                const text = miniTexts[num][cap] || '—';
-                html += `<td>
-                    <div class="cell-number">${num}</div>
-                    <div class="count">${cnt} шт.</div>
-                    <div class="desc">${text}</div>
-                </td>`;
-            }
-            html += '</tr>';
+        const { day, digits } = parseDate(dateStr);
+
+        // 1. Первое дополнительное число
+        const firstExtra = digits.reduce((a, b) => a + b, 0);
+
+        // 2. Второе дополнительное число (если первое однозначное, то равно ему)
+        const secondExtra = firstExtra < 10 ? firstExtra : sumDigits(firstExtra);
+
+        // 3. Третье дополнительное число
+        const firstDigitOfDay = day >= 10 ? Math.floor(day / 10) : day;
+        let thirdExtra = firstExtra - 2 * firstDigitOfDay;
+        // Берём модуль, если отрицательное
+        if (thirdExtra < 0) thirdExtra = Math.abs(thirdExtra);
+
+        // 4. Четвёртое дополнительное число (если третье однозначное, равно ему)
+        const fourthExtra = thirdExtra < 10 ? thirdExtra : sumDigits(thirdExtra);
+
+        // Число Судьбы
+        const fateNumber = reduceToFate(secondExtra);
+
+        // Собираем все цифры для матрицы (0 не учитываем)
+        const allDigits = [];
+        // цифры даты
+        digits.forEach(d => { if (d !== 0) allDigits.push(d); });
+        // цифры доп. чисел
+        [firstExtra, secondExtra, thirdExtra, fourthExtra].forEach(num => {
+            String(num).split('').forEach(d => {
+                if (d !== '0') allDigits.push(Number(d));
+            });
+        });
+
+        // Подсчёт количества каждой цифры 1-9
+        const matrix = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+        allDigits.forEach(d => { if (d >= 1 && d <= 9) matrix[d]++; });
+
+        // Формирование строк для ячеек внутреннего квадрата (111, 2, -, и т.д.)
+        const cell = {};
+        for (let i = 1; i <= 9; i++) {
+            cell[i] = matrix[i] === 0 ? '-' : String(i).repeat(matrix[i]);
         }
-        html += '</table>';
-        html += `<p style="margin-top:15px; font-size:14px;"><i>Это краткий бесплатный разбор. Для полного анализа и личной консультации вернитесь в бота и нажмите «Купить полный разбор».</i></p>`;
+
+        // Внешние сектора (количество цифр, не сумма)
+        const goal = matrix[1] + matrix[4] + matrix[7];
+        const family = matrix[2] + matrix[5] + matrix[8];
+        const habits = matrix[3] + matrix[6] + matrix[9];
+        const life = matrix[4] + matrix[5] + matrix[6];    // Быт
+        const temperament = matrix[3] + matrix[5] + matrix[7];  // Интерес + Логика + Удача
+
+        // Доп. числа строкой
+        const extrasStr = `${firstExtra}, ${secondExtra}, ${thirdExtra}, ${fourthExtra}`;
+
+        let html = `
+        <div class="info-line">
+            <span><strong>Доп. числа:</strong> ${extrasStr}</span>
+            <span><strong>Число судьбы:</strong> ${fateNumber}</span>
+            <span><strong>Темперамент:</strong> ${temperament}</span>
+        </div>
+        <table class="grid">
+            <tr>
+                <td class="empty-cell"></td>
+                <td class="label">Цель</td>
+                <td class="label">Семья</td>
+                <td class="label">Привычки</td>
+                <td class="empty-cell"></td>
+            </tr>
+            <tr>
+                <td class="label">Характер</td>
+                <td class="value">${cell[1]}</td>
+                <td class="value">${cell[4]}</td>
+                <td class="value">${cell[7]}</td>
+                <td class="external">${goal}</td>
+            </tr>
+            <tr>
+                <td class="label">Энергия</td>
+                <td class="value">${cell[2]}</td>
+                <td class="value">${cell[5]}</td>
+                <td class="value">${cell[8]}</td>
+                <td class="external">${family}</td>
+            </tr>
+            <tr>
+                <td class="label">Интерес</td>
+                <td class="value">${cell[3]}</td>
+                <td class="value">${cell[6]}</td>
+                <td class="value">${cell[9]}</td>
+                <td class="external">${habits}</td>
+            </tr>
+            <tr>
+                <td class="label">Быт</td>
+                <td class="external" colspan="3">${life}</td>
+                <td class="empty-cell"></td>
+            </tr>
+        </table>
+        <div class="small-note">
+            <i>Это краткий бесплатный расчёт. Для полного разбора и личной консультации вернитесь в Telegram-бота и нажмите «Купить полный разбор».</i>
+        </div>
+        `;
         document.getElementById('result').innerHTML = html;
     }
 </script>
