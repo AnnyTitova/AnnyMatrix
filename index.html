@@ -42,47 +42,48 @@
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-            margin: 8px 0;
+            margin: 8px 0 15px;
             flex-wrap: wrap;
+            background: #f0f4f8;
+            padding: 8px;
+            border-radius: 6px;
         }
         table.grid {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
+            margin: 0 auto;
         }
         table.grid td {
             border: 2px solid #999;
-            padding: 8px 4px;
+            padding: 10px 5px;
             text-align: center;
             vertical-align: middle;
-            height: 50px;
             background: #fff;
-            font-weight: bold;
-            font-size: 14px;
-            color: #222;
+            width: 25%;
         }
         table.grid td.empty-cell {
             border: none;
             background: transparent;
         }
-        .label {
-            font-weight: bold;
+        .cell-label {
             font-size: 13px;
-            background: #f0f0f0;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
         }
-        .value {
+        .cell-value {
             font-size: 18px;
             font-weight: bold;
+            color: #222;
         }
-        .external {
-            font-weight: bold;
-            font-size: 16px;
+        .external-cell .cell-label,
+        .external-cell .cell-value {
             color: #2c3e50;
         }
         .small-note {
             font-size: 13px;
             color: #666;
-            margin-top: 12px;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -95,12 +96,10 @@
     <div id="result" class="result"></div>
 </div>
 <script>
-    // Сумма цифр числа (игнорируем знак)
     function sumDigits(num) {
         return String(Math.abs(num)).split('').reduce((a, b) => a + Number(b), 0);
     }
 
-    // Доведение до однозначного, но 11 не трогаем
     function reduceToFate(num) {
         if (num === 11) return 11;
         while (num > 9 && num !== 11) {
@@ -114,7 +113,6 @@
         const day = parseInt(parts[0], 10);
         const month = parseInt(parts[1], 10);
         const year = parseInt(parts[2], 10);
-        // все цифры даты
         const digits = (parts[0] + parts[1] + parts[2]).split('').map(Number);
         return { day, month, year, digits };
     }
@@ -127,53 +125,37 @@
         }
         const { day, digits } = parseDate(dateStr);
 
-        // 1. Первое дополнительное число
         const firstExtra = digits.reduce((a, b) => a + b, 0);
-
-        // 2. Второе дополнительное число (если первое однозначное, то равно ему)
         const secondExtra = firstExtra < 10 ? firstExtra : sumDigits(firstExtra);
-
-        // 3. Третье дополнительное число
         const firstDigitOfDay = day >= 10 ? Math.floor(day / 10) : day;
         let thirdExtra = firstExtra - 2 * firstDigitOfDay;
-        // Берём модуль, если отрицательное
         if (thirdExtra < 0) thirdExtra = Math.abs(thirdExtra);
-
-        // 4. Четвёртое дополнительное число (если третье однозначное, равно ему)
         const fourthExtra = thirdExtra < 10 ? thirdExtra : sumDigits(thirdExtra);
 
-        // Число Судьбы
         const fateNumber = reduceToFate(secondExtra);
 
-        // Собираем все цифры для матрицы (0 не учитываем)
         const allDigits = [];
-        // цифры даты
         digits.forEach(d => { if (d !== 0) allDigits.push(d); });
-        // цифры доп. чисел
         [firstExtra, secondExtra, thirdExtra, fourthExtra].forEach(num => {
             String(num).split('').forEach(d => {
                 if (d !== '0') allDigits.push(Number(d));
             });
         });
 
-        // Подсчёт количества каждой цифры 1-9
         const matrix = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
         allDigits.forEach(d => { if (d >= 1 && d <= 9) matrix[d]++; });
 
-        // Формирование строк для ячеек внутреннего квадрата (111, 2, -, и т.д.)
         const cell = {};
         for (let i = 1; i <= 9; i++) {
             cell[i] = matrix[i] === 0 ? '-' : String(i).repeat(matrix[i]);
         }
 
-        // Внешние сектора (количество цифр, не сумма)
         const goal = matrix[1] + matrix[4] + matrix[7];
         const family = matrix[2] + matrix[5] + matrix[8];
         const habits = matrix[3] + matrix[6] + matrix[9];
-        const life = matrix[4] + matrix[5] + matrix[6];    // Быт
-        const temperament = matrix[3] + matrix[5] + matrix[7];  // Интерес + Логика + Удача
+        const life = matrix[4] + matrix[5] + matrix[6];
+        const temperament = matrix[3] + matrix[5] + matrix[7];
 
-        // Доп. числа строкой
         const extrasStr = `${firstExtra}, ${secondExtra}, ${thirdExtra}, ${fourthExtra}`;
 
         let html = `
@@ -184,36 +166,66 @@
         </div>
         <table class="grid">
             <tr>
+                <td>
+                    <div class="cell-label">Характер</div>
+                    <div class="cell-value">${cell[1]}</div>
+                </td>
+                <td>
+                    <div class="cell-label">Здоровье</div>
+                    <div class="cell-value">${cell[4]}</div>
+                </td>
+                <td>
+                    <div class="cell-label">Удача</div>
+                    <div class="cell-value">${cell[7]}</div>
+                </td>
+                <td class="external-cell">
+                    <div class="cell-label">Цель</div>
+                    <div class="cell-value">${goal}</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="cell-label">Энергия</div>
+                    <div class="cell-value">${cell[2]}</div>
+                </td>
+                <td>
+                    <div class="cell-label">Логика</div>
+                    <div class="cell-value">${cell[5]}</div>
+                </td>
+                <td>
+                    <div class="cell-label">Долг</div>
+                    <div class="cell-value">${cell[8]}</div>
+                </td>
+                <td class="external-cell">
+                    <div class="cell-label">Семья</div>
+                    <div class="cell-value">${family}</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="cell-label">Интерес</div>
+                    <div class="cell-value">${cell[3]}</div>
+                </td>
+                <td>
+                    <div class="cell-label">Труд</div>
+                    <div class="cell-value">${cell[6]}</div>
+                </td>
+                <td>
+                    <div class="cell-label">Память</div>
+                    <div class="cell-value">${cell[9]}</div>
+                </td>
+                <td class="external-cell">
+                    <div class="cell-label">Привычки</div>
+                    <div class="cell-value">${habits}</div>
+                </td>
+            </tr>
+            <tr>
                 <td class="empty-cell"></td>
-                <td class="label">Цель</td>
-                <td class="label">Семья</td>
-                <td class="label">Привычки</td>
+                <td>
+                    <div class="cell-label">Быт</div>
+                    <div class="cell-value">${life}</div>
+                </td>
                 <td class="empty-cell"></td>
-            </tr>
-            <tr>
-                <td class="label">Характер</td>
-                <td class="value">${cell[1]}</td>
-                <td class="value">${cell[4]}</td>
-                <td class="value">${cell[7]}</td>
-                <td class="external">${goal}</td>
-            </tr>
-            <tr>
-                <td class="label">Энергия</td>
-                <td class="value">${cell[2]}</td>
-                <td class="value">${cell[5]}</td>
-                <td class="value">${cell[8]}</td>
-                <td class="external">${family}</td>
-            </tr>
-            <tr>
-                <td class="label">Интерес</td>
-                <td class="value">${cell[3]}</td>
-                <td class="value">${cell[6]}</td>
-                <td class="value">${cell[9]}</td>
-                <td class="external">${habits}</td>
-            </tr>
-            <tr>
-                <td class="label">Быт</td>
-                <td class="external" colspan="3">${life}</td>
                 <td class="empty-cell"></td>
             </tr>
         </table>
