@@ -5,13 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Психоматрица Перцевой</title>
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f9f9f9; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        input, button { width: 100%; padding: 12px; margin: 8px 0; font-size: 16px; border-radius: 8px; border: 1px solid #ddd; }
-        button { background: #4CAF50; color: white; border: none; }
-        .result { margin-top: 20px; }
-        .cell { display: flex; justify-content: space-between; margin: 6px 0; }
-        .desc { font-size: 14px; color: #555; margin-left: 10px; }
+        body {
+            font-family: sans-serif;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .container {
+            max-width: 420px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        td {
+            border: 2px solid #ccc;
+            padding: 12px 4px;
+            vertical-align: top;
+            width: 33%;
+            background: #fff;
+        }
+        .cell-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        .count {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .desc {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -29,7 +80,12 @@
         const second = String(first).split('').reduce((a, b) => a + Number(b), 0);
         const third = first - 2 * digits[0];
         const fourth = String(third).split('').reduce((a, b) => a + Number(b), 0);
-        const all = digits.concat(String(first).split('').map(Number), String(second).split('').map(Number), String(third).split('').map(Number), String(fourth).split('').map(Number));
+        const all = digits.concat(
+            String(first).split('').map(Number),
+            String(second).split('').map(Number),
+            String(third).split('').map(Number),
+            String(fourth).split('').map(Number)
+        );
         return all.filter(d => d !== 0);
     }
 
@@ -59,14 +115,27 @@
         }
         const digits = getDigits(dateStr);
         const matrix = buildMatrix(digits);
-        let html = '<h4>Ваша психоматрица</h4>';
-        for (let i = 1; i <= 9; i++) {
-            const cnt = matrix[i];
-            const cap = cnt > 4 ? 4 : cnt;
-            const text = miniTexts[i][cap] || '—';
-            html += `<div class="cell"><strong>${i} — ${cnt} шт.</strong><span class="desc">${text}</span></div>`;
+        
+        // Формируем таблицу 3×3
+        let html = '<h4>Ваша психоматрица</h4><table>';
+        const order = [1,2,3,4,5,6,7,8,9];
+        for (let i = 0; i < 9; i += 3) {
+            html += '<tr>';
+            for (let j = 0; j < 3; j++) {
+                const num = order[i + j];
+                const cnt = matrix[num];
+                const cap = cnt > 4 ? 4 : cnt;
+                const text = miniTexts[num][cap] || '—';
+                html += `<td>
+                    <div class="cell-number">${num}</div>
+                    <div class="count">${cnt} шт.</div>
+                    <div class="desc">${text}</div>
+                </td>`;
+            }
+            html += '</tr>';
         }
-        html += `<p style="margin-top:15px"><i>Это краткий бесплатный разбор. Для полного анализа и личной консультации вернитесь в бота и нажмите «Купить полный разбор».</i></p>`;
+        html += '</table>';
+        html += `<p style="margin-top:15px; font-size:14px;"><i>Это краткий бесплатный разбор. Для полного анализа и личной консультации вернитесь в бота и нажмите «Купить полный разбор».</i></p>`;
         document.getElementById('result').innerHTML = html;
     }
 </script>
