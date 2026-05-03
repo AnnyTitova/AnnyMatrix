@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Психоматрица Перцевой</title>
+    <style>
+        body { font-family: sans-serif; padding: 15px; background: #f9f9f9; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; font-size: 16px; border-radius: 8px; border: 1px solid #ddd; }
+        button { background: #4CAF50; color: white; border: none; }
+        .result { margin-top: 20px; }
+        .cell { display: flex; justify-content: space-between; margin: 6px 0; }
+        .desc { font-size: 14px; color: #555; margin-left: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h3>Квадрат Пифагора по методу Ольги Перцевой</h3>
+    <p>Введите дату рождения:</p>
+    <input type="text" id="dateInput" placeholder="ДД.ММ.ГГГГ" maxlength="10">
+    <button onclick="calculate()">Рассчитать</button>
+    <div id="result" class="result"></div>
+</div>
+<script>
+    function getDigits(dateStr) {
+        const digits = dateStr.replace(/\D/g, '').split('').map(Number);
+        const first = digits.reduce((a, b) => a + b, 0);
+        const second = String(first).split('').reduce((a, b) => a + Number(b), 0);
+        const third = first - 2 * digits[0];
+        const fourth = String(third).split('').reduce((a, b) => a + Number(b), 0);
+        const all = digits.concat(String(first).split('').map(Number), String(second).split('').map(Number), String(third).split('').map(Number), String(fourth).split('').map(Number));
+        return all.filter(d => d !== 0);
+    }
+
+    function buildMatrix(digits) {
+        const matrix = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+        digits.forEach(d => { if (d in matrix) matrix[d]++; });
+        return matrix;
+    }
+
+    const miniTexts = {
+        1: {0:"Мягкий, уступчивый", 1:"Мягкий, с проблесками воли", 2:"Гармоничный характер", 3:"Лидерские качества", 4:"Сильный характер, возможна жесткость"},
+        2: {0:"Быстрая утомляемость", 1:"Энергии мало", 2:"Стабильный уровень энергии", 3:"Высокая энергетика", 4:"Очень много энергии"},
+        3: {0:"Гуманитарный склад", 1:"Творческое мышление", 2:"Способности к точным наукам", 3:"Аналитический ум", 4:"Выдающиеся способности"},
+        4: {0:"Слабый иммунитет", 1:"Здоровье требует внимания", 2:"Норма", 3:"Крепкое здоровье", 4:"Очень выносливый"},
+        5: {0:"Логика интуитивная", 1:"Логика развита слабо", 2:"Ясное мышление", 3:"Сильная интуиция", 4:"Дар предвидения"},
+        6: {0:"Творческая натура", 1:"Склонность к умственному труду", 2:"Ручной труд приносит радость", 3:"Мастер своего дела", 4:"Трудоголик"},
+        7: {0:"Удача достигается усилиями", 1:"Есть везение", 2:"Часто везёт", 3:"Любимчик судьбы", 4:"Избыток удачи"},
+        8: {0:"Свобода от обязательств", 1:"Чувство долга ситуативное", 2:"Ответственный", 3:"Гиперответственность", 4:"Постоянное чувство вины"},
+        9: {0:"Память нуждается в тренировке", 1:"Память средняя", 2:"Хорошая память", 3:"Мудрость, отличная память", 4:"Энциклопедическая память"}
+    };
+
+    function calculate() {
+        const dateStr = document.getElementById('dateInput').value.trim();
+        if (!/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
+            alert('Введите дату в формате ДД.ММ.ГГГГ');
+            return;
+        }
+        const digits = getDigits(dateStr);
+        const matrix = buildMatrix(digits);
+        let html = '<h4>Ваша психоматрица</h4>';
+        for (let i = 1; i <= 9; i++) {
+            const cnt = matrix[i];
+            const cap = cnt > 4 ? 4 : cnt;
+            const text = miniTexts[i][cap] || '—';
+            html += `<div class="cell"><strong>${i} — ${cnt} шт.</strong><span class="desc">${text}</span></div>`;
+        }
+        html += `<p style="margin-top:15px"><i>Это краткий бесплатный разбор. Для полного анализа и личной консультации вернитесь в бота и нажмите «Купить полный разбор».</i></p>`;
+        document.getElementById('result').innerHTML = html;
+    }
+</script>
+</body>
+</html>
