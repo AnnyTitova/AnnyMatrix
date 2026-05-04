@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Психоматрица Перцевой</title>
+    <title>Рассчитай свою психоматрицу</title>
     <style>
         body {
             font-family: sans-serif;
@@ -76,26 +76,81 @@
             font-weight: bold;
             color: #222;
         }
-        .external-cell .cell-label,
-        .external-cell .cell-value {
-            color: #2c3e50;
-        }
         .small-note {
             font-size: 13px;
             color: #666;
             margin-top: 15px;
         }
+        .legal-block {
+            margin-top: 25px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .legal-block a {
+            color: #888;
+            text-decoration: underline;
+            margin: 0 8px;
+        }
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .social-btn {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        .tg-btn {
+            background: #2AABEE;
+        }
+        .insta-btn {
+            background: #E1306C;
+        }
+        .warning {
+            font-size: 11px;
+            color: #cc0000;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h3>Психоматрица по методу Ольги Перцевой</h3>
+    <h3>Рассчитай свою психоматрицу</h3>
     <p>Введите дату рождения:</p>
-    <input type="text" id="dateInput" placeholder="ДД.ММ.ГГГГ" maxlength="10">
+    <input type="text" id="dateInput" placeholder="ДД.ММ.ГГГГ" maxlength="10" inputmode="numeric">
     <button onclick="calculate()">Рассчитать</button>
     <div id="result" class="result"></div>
 </div>
+
 <script>
+    // Автоматическая маска для поля ввода даты
+    const dateInput = document.getElementById('dateInput');
+    dateInput.addEventListener('input', function(e) {
+        let val = dateInput.value.replace(/\D/g, ''); // оставляем только цифры
+        if (val.length > 8) val = val.substring(0, 8);
+        let formatted = '';
+        if (val.length > 0) {
+            formatted += val.substring(0, 2);
+        }
+        if (val.length >= 3) {
+            formatted += '.' + val.substring(2, 4);
+        }
+        if (val.length >= 5) {
+            formatted += '.' + val.substring(4, 8);
+        }
+        dateInput.value = formatted;
+    });
+
     function sumDigits(num) {
         return String(Math.abs(num)).split('').reduce((a, b) => a + Number(b), 0);
     }
@@ -111,14 +166,12 @@
     function parseDate(dateStr) {
         const parts = dateStr.split('.');
         const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10);
-        const year = parseInt(parts[2], 10);
         const digits = (parts[0] + parts[1] + parts[2]).split('').map(Number);
-        return { day, month, year, digits };
+        return { day, digits };
     }
 
     function calculate() {
-        const dateStr = document.getElementById('dateInput').value.trim();
+        const dateStr = dateInput.value.trim();
         if (!/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
             alert('Введите дату в формате ДД.ММ.ГГГГ');
             return;
@@ -166,75 +219,56 @@
         </div>
         <table class="grid">
             <tr>
-                <td>
-                    <div class="cell-label">Характер</div>
-                    <div class="cell-value">${cell[1]}</div>
-                </td>
-                <td>
-                    <div class="cell-label">Здоровье</div>
-                    <div class="cell-value">${cell[4]}</div>
-                </td>
-                <td>
-                    <div class="cell-label">Удача</div>
-                    <div class="cell-value">${cell[7]}</div>
-                </td>
-                <td class="external-cell">
-                    <div class="cell-label">Цель</div>
-                    <div class="cell-value">${goal}</div>
-                </td>
+                <td><div class="cell-label">Характер</div><div class="cell-value">${cell[1]}</div></td>
+                <td><div class="cell-label">Здоровье</div><div class="cell-value">${cell[4]}</div></td>
+                <td><div class="cell-label">Удача</div><div class="cell-value">${cell[7]}</div></td>
+                <td><div class="cell-label">Цель</div><div class="cell-value">${goal}</div></td>
             </tr>
             <tr>
-                <td>
-                    <div class="cell-label">Энергия</div>
-                    <div class="cell-value">${cell[2]}</div>
-                </td>
-                <td>
-                    <div class="cell-label">Логика</div>
-                    <div class="cell-value">${cell[5]}</div>
-                </td>
-                <td>
-                    <div class="cell-label">Долг</div>
-                    <div class="cell-value">${cell[8]}</div>
-                </td>
-                <td class="external-cell">
-                    <div class="cell-label">Семья</div>
-                    <div class="cell-value">${family}</div>
-                </td>
+                <td><div class="cell-label">Энергия</div><div class="cell-value">${cell[2]}</div></td>
+                <td><div class="cell-label">Логика</div><div class="cell-value">${cell[5]}</div></td>
+                <td><div class="cell-label">Долг</div><div class="cell-value">${cell[8]}</div></td>
+                <td><div class="cell-label">Семья</div><div class="cell-value">${family}</div></td>
             </tr>
             <tr>
-                <td>
-                    <div class="cell-label">Интерес</div>
-                    <div class="cell-value">${cell[3]}</div>
-                </td>
-                <td>
-                    <div class="cell-label">Труд</div>
-                    <div class="cell-value">${cell[6]}</div>
-                </td>
-                <td>
-                    <div class="cell-label">Память</div>
-                    <div class="cell-value">${cell[9]}</div>
-                </td>
-                <td class="external-cell">
-                    <div class="cell-label">Привычки</div>
-                    <div class="cell-value">${habits}</div>
-                </td>
+                <td><div class="cell-label">Интерес</div><div class="cell-value">${cell[3]}</div></td>
+                <td><div class="cell-label">Труд</div><div class="cell-value">${cell[6]}</div></td>
+                <td><div class="cell-label">Память</div><div class="cell-value">${cell[9]}</div></td>
+                <td><div class="cell-label">Привычки</div><div class="cell-value">${habits}</div></td>
             </tr>
             <tr>
                 <td class="empty-cell"></td>
-                <td>
-                    <div class="cell-label">Быт</div>
-                    <div class="cell-value">${life}</div>
-                </td>
+                <td><div class="cell-label">Быт</div><div class="cell-value">${life}</div></td>
                 <td class="empty-cell"></td>
                 <td class="empty-cell"></td>
             </tr>
         </table>
         <div class="small-note">
-            <i>Это краткий бесплатный расчёт. Для полного разбора и личной консультации вернитесь в Telegram-бота и нажмите «Купить полный разбор».</i>
+            <i>Это краткий бесплатный расчёт. Для полного разбора и личной консультации свяжитесь со мной.</i>
         </div>
         `;
         document.getElementById('result').innerHTML = html;
     }
 </script>
+
+<!-- Блок с контактами и правовой информацией -->
+<div class="legal-block">
+    <p style="margin-bottom:5px;">Применяется метод статистического психоанализа Ольги Перцевой</p>
+    <p style="margin-bottom:10px;">Владелец сайта: Анна Титова</p>
+
+    <div class="social-buttons">
+        <a href="https://t.me/anny_ann_t" target="_blank" class="social-btn tg-btn">📱 Написать в Telegram</a>
+        <a href="https://www.instagram.com/anny_ann_t?igsh=MW95ZXV5a29ob2I4dQ%3D%3D&utm_source=qr" target="_blank" class="social-btn insta-btn">📸 Написать в Instagram</a>
+    </div>
+    <p class="warning">* Instagram принадлежит компании Meta, признанной экстремистской и запрещённой на территории РФ</p>
+
+    <div style="margin-top:12px;">
+        <a href="#privacy">Политика конфиденциальности</a>
+        <a href="#offer">Договор-оферта</a>
+        <a href="#consent">Согласие на обработку данных</a>
+    </div>
+    <p style="margin-top:8px;">© 2025 Анна Титова</p>
+</div>
+
 </body>
 </html>
