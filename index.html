@@ -115,6 +115,41 @@
             color: #333;
             margin-top: 3px;
         }
+        .sales-block {
+            margin-top: 25px;
+            background: #e8f5e9;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .sales-block h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        .sales-block ul {
+            text-align: left;
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        .sales-block li {
+            margin-bottom: 8px;
+        }
+        .btn-order {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 15px 0;
+        }
+        .email-note {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
         .legal-block {
             margin-top: 25px;
             font-size: 12px;
@@ -147,13 +182,15 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 14px;
-            color: white;
+            border: 1px solid #ccc;
+            color: #333;
+            background: #fff;
         }
-        .tg-btn {
-            background: #2AABEE;
+        .social-btn.tg-btn::before {
+            content: "📱 ";
         }
-        .insta-btn {
-            background: #E1306C;
+        .social-btn.insta-btn::before {
+            content: "📸 ";
         }
     </style>
 </head>
@@ -270,62 +307,17 @@
         }
     };
 
-    function getCharKey(val) {
-        if (val <= 1) return '0-1';
-        if (val === 2) return '2';
-        if (val === 3) return '3';
-        return '4+';
-    }
-    function getEnergyKey(val) {
-        if (val <= 1) return '0-1';
-        if (val === 2) return '2';
-        return '3+';
-    }
-    function getInterestKey(val) {
-        if (val <= 1) return '0-1';
-        if (val === 2) return '2';
-        return '3+';
-    }
-    function getHealthKey(val) {
-        if (val === 0) return '0';
-        if (val === 1) return '1';
-        return '2+';
-    }
-    function getLogicKey(val) {
-        if (val === 0) return '0';
-        if (val === 1) return '1';
-        return '2+';
-    }
-    function getLaborKey(val) {
-        if (val === 0) return '0';
-        if (val <= 2) return '1-2';
-        return '3+';
-    }
-    function getLuckKey(val) {
-        return val === 0 ? '0' : '1+';
-    }
-    function getDutyKey(val) {
-        if (val === 0) return '0';
-        if (val === 2) return '2';
-        return '3+';
-    }
-    function getMemoryKey(val) {
-        if (val === 0) return '0';
-        if (val === 2) return '2';
-        return '3+';
-    }
-    function getExternalKey(val) {
-        if (val <= 2) return '0-2';
-        if (val === 3) return '3';
-        if (val <= 5) return '4-5';
-        return '6+';
-    }
-    function getTempKey(val) {
-        if (val <= 2) return '0-2';
-        if (val === 3) return '3';
-        if (val <= 5) return '4-5';
-        return '6+';
-    }
+    function getCharKey(val) { if (val <= 1) return '0-1'; if (val === 2) return '2'; if (val === 3) return '3'; return '4+'; }
+    function getEnergyKey(val) { if (val <= 1) return '0-1'; if (val === 2) return '2'; return '3+'; }
+    function getInterestKey(val) { if (val <= 1) return '0-1'; if (val === 2) return '2'; return '3+'; }
+    function getHealthKey(val) { if (val === 0) return '0'; if (val === 1) return '1'; return '2+'; }
+    function getLogicKey(val) { if (val === 0) return '0'; if (val === 1) return '1'; return '2+'; }
+    function getLaborKey(val) { if (val === 0) return '0'; if (val <= 2) return '1-2'; return '3+'; }
+    function getLuckKey(val) { return val === 0 ? '0' : '1+'; }
+    function getDutyKey(val) { if (val === 0) return '0'; if (val === 2) return '2'; return '3+'; }
+    function getMemoryKey(val) { if (val === 0) return '0'; if (val === 2) return '2'; return '3+'; }
+    function getExternalKey(val) { if (val <= 2) return '0-2'; if (val === 3) return '3'; if (val <= 5) return '4-5'; return '6+'; }
+    function getTempKey(val) { if (val <= 2) return '0-2'; if (val === 3) return '3'; if (val <= 5) return '4-5'; return '6+'; }
 
     function calculate() {
         const dateStr = dateInput.value.trim();
@@ -368,10 +360,7 @@
 
         const extrasStr = `${firstExtra}, ${secondExtra}, ${thirdExtra}, ${fourthExtra}`;
 
-        // Сохраняем данные для расшифровки
-        window._matrixData = {
-            matrix, goal, family, habits, life, temperament, fateNumber
-        };
+        window._matrixData = { matrix, goal, family, habits, life, temperament, fateNumber };
 
         let html = `
         <div class="info-line">
@@ -438,6 +427,23 @@
         items.forEach(item => {
             html += `<div class="interp-item"><span class="interp-title">${item.title}</span><div class="interp-text">${item.text}</div></div>`;
         });
+
+        html += `
+        <div class="sales-block">
+            <h3>🌟 Полный разбор матрицы</h3>
+            <p>Узнайте то, что скрыто за пределами кратких значений.</p>
+            <ul>
+                <li>🔍 <strong>Уникальный анализ сочетаний и персональных кодов</strong> — то, что невозможно увидеть в простой таблице.</li>
+                <li>📄 <strong>Подробная проработка каждого показателя</strong> с учётом всех взаимосвязей.</li>
+                <li>📘 <strong>Персональная PDF-книга</strong> — полноценная инструкция к себе с психологическими инструментами и рекомендациями.</li>
+                <li>👥 <strong>Две онлайн-встречи по 1,5 часа</strong> — полностью разберём вашу матрицу и ответим на волнующие вопросы.</li>
+                <li>⏳ <strong>Быстрая и точная диагностика</strong> вместо годов терапии, помогающая понять себя и других.</li>
+            </ul>
+            <a href="https://t.me/anny_ann_t" target="_blank" class="btn-order">Заказать полный разбор</a>
+            <div class="email-note">Если Telegram недоступен, напишите на почту: <a href="mailto:anya_titova@bk.ru">anya_titova@bk.ru</a></div>
+        </div>
+        `;
+
         const block = document.getElementById('interpBlock');
         block.innerHTML = html;
         block.style.display = 'block';
@@ -446,10 +452,10 @@
 
 <!-- Блок с контактами и правовой информацией -->
 <div class="legal-block">
-    <p style="margin-bottom:5px;">Применяется метод статистического психоанализа Ольги Перцевой</p>
+    <p style="margin-bottom:5px;">Анна Титова. Консультант Статистического Психоанализа по методу О.Перцевой</p>
     <div class="social-buttons">
-        <a href="https://t.me/anny_ann_t" target="_blank" class="social-btn tg-btn">📱 Написать в Telegram</a>
-        <a href="https://www.instagram.com/anny_ann_t?igsh=MW95ZXV5a29ob2I4dQ%3D%3D&utm_source=qr" target="_blank" class="social-btn insta-btn">📸 Написать в Instagram</a>
+        <a href="https://t.me/anny_ann_t" target="_blank" class="social-btn tg-btn">Написать в Telegram</a>
+        <a href="https://www.instagram.com/anny_ann_t?igsh=MW95ZXV5a29ob2I4dQ%3D%3D&utm_source=qr" target="_blank" class="social-btn insta-btn">Написать в Instagram</a>
     </div>
     <p class="warning">* Instagram принадлежит компании Meta, признанной экстремистской и запрещённой на территории РФ</p>
 
