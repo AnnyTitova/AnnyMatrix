@@ -329,6 +329,11 @@
         return '3+';
     }
     function getExternalKey(val) { if (val <= 2) return '0-2'; if (val === 3) return '3'; if (val <= 5) return '4-5'; return '6+'; }
+    function getHabitsKey(val) {
+        if (val <= 3) return '0-3';
+        if (val <= 5) return '4-5';
+        return '6+';
+    }
     function getTempKey(val) { if (val <= 2) return '0-2'; if (val === 3) return '3'; if (val <= 5) return '4-5'; return '6+'; }
 
     function calculate() {
@@ -429,7 +434,7 @@
             { title: 'Память', text: interpretations.memory[getMemoryKey(m[9])] },
             { title: 'Цель', text: interpretations.goal[getExternalKey(data.goal)] },
             { title: 'Семья', text: interpretations.family[getExternalKey(data.family)] },
-            { title: 'Привычки', text: interpretations.habits[getExternalKey(data.habits)] },
+            { title: 'Привычки', text: interpretations.habits[getHabitsKey(data.habits)] },
             { title: 'Быт', text: interpretations.life[data.life <= 2 ? '0-2' : '3+'] },
             { title: 'Темперамент', text: interpretations.temp[getTempKey(data.temperament)] },
             { title: 'Число Судьбы ' + data.fateNumber, text: 'Отвечает за профессиональную реализацию, показывает сферы, в которых ваши личностные способности и особенности могут раскрыться в полной мере. Полный разбор откроет все детали.' }
@@ -462,7 +467,6 @@
     }
 </script>
 
-<!-- Блок с контактами и правовой информацией -->
 <div class="legal-block">
     <p style="margin-bottom:5px;">Анна Титова. Консультант Статистического Психоанализа по методу О.Перцевой</p>
     <div class="social-buttons">
