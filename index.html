@@ -81,39 +81,39 @@
             color: #666;
             margin-top: 15px;
         }
-        .paid-block {
-            background: #fff3e0;
-            border: 2px dashed #ff9800;
-            border-radius: 12px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-        }
-        .paid-block h4 {
-            margin-top: 0;
-        }
-        .price {
-            font-size: 24px;
-            font-weight: bold;
-            color: #e65100;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 5px;
-            color: white;
-        }
-        .btn-tg {
-            background: #2AABEE;
-        }
-        .btn-inst {
-            background: #E1306C;
-        }
-        .btn-buy {
+        .btn-show {
             background: #ff9800;
+            color: white;
+            font-size: 16px;
+            padding: 12px;
+            margin: 15px 0;
+        }
+        .interpretation-block {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+        .interp-item {
+            margin-bottom: 12px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .interp-item:last-child {
+            border-bottom: none;
+        }
+        .interp-title {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 15px;
+        }
+        .interp-text {
+            font-size: 14px;
+            color: #333;
+            margin-top: 3px;
         }
         .legal-block {
             margin-top: 25px;
@@ -133,8 +133,27 @@
             color: #cc0000;
             margin-top: 5px;
         }
-        .hidden {
-            display: none;
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .social-btn {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        .tg-btn {
+            background: #2AABEE;
+        }
+        .insta-btn {
+            background: #E1306C;
         }
     </style>
 </head>
@@ -176,7 +195,6 @@
         return { day, digits };
     }
 
-    // Расшифровки (будут показаны только после оплаты)
     const interpretations = {
         char: {
             '0-1': 'Внутренняя мягкость при внешней дистанции. Вам важно быть уникальным, но окружающим порой трудно вас «прочитать».',
@@ -252,15 +270,6 @@
         }
     };
 
-    // Определение ключа диапазона для расшифровки
-    function getRangeKey(val, thresholds) {
-        if (typeof thresholds === 'function') return thresholds(val);
-        for (let i = 0; i < thresholds.length; i++) {
-            if (val <= thresholds[i]) return Object.keys(interpretations.char)[i]; // универсально
-        }
-        return Object.keys(interpretations.char).pop();
-    }
-
     function getCharKey(val) {
         if (val <= 1) return '0-1';
         if (val === 2) return '2';
@@ -305,10 +314,10 @@
         if (val === 2) return '2';
         return '3+';
     }
-    function getExternalKey(val, low, mid, high) {
-        if (val <= low) return '0-2';
-        if (val <= mid) return '3';
-        if (val <= high) return '4-5';
+    function getExternalKey(val) {
+        if (val <= 2) return '0-2';
+        if (val === 3) return '3';
+        if (val <= 5) return '4-5';
         return '6+';
     }
     function getTempKey(val) {
@@ -359,7 +368,11 @@
 
         const extrasStr = `${firstExtra}, ${secondExtra}, ${thirdExtra}, ${fourthExtra}`;
 
-        // Собираем таблицу
+        // Сохраняем данные для расшифровки
+        window._matrixData = {
+            matrix, goal, family, habits, life, temperament, fateNumber
+        };
+
         let html = `
         <div class="info-line">
             <span><strong>Доп. числа:</strong> ${extrasStr}</span>
@@ -392,39 +405,51 @@
                 <td class="empty-cell"></td>
             </tr>
         </table>
-        <div class="small-note">Это только цифры. Хотите узнать, что они означают?</div>
+        <button class="btn-show" onclick="showInterpretation()">📖 Показать краткую расшифровку</button>
+        <div id="interpBlock" class="interpretation-block"></div>
         `;
-
-        // Платный блок с краткой расшифровкой
-        html += `
-        <div class="paid-block">
-            <h4>🔐 Краткая расшифровка всех показателей</h4>
-            <p>Узнайте, что скрывается за каждым числом: характер, энергия, логика, удача и остальные секреты вашей матрицы.</p>
-            <p class="price">100 ₽</p>
-            <a href="https://t.me/anny_ann_t" target="_blank" class="btn btn-tg">💬 Получить в Telegram</a>
-            <p style="font-size:12px; color:#888;">После оплаты вы получите расшифровку сообщением</p>
-        </div>
-        `;
-
-        // Блок полного разбора
-        html += `
-        <div style="background:#e8f5e9; border-radius:12px; padding:15px; margin:15px 0; text-align:center;">
-            <h4>🌟 Полный разбор матрицы и консультация</h4>
-            <p>Только в полном разборе мы исследуем <strong>уникальные сочетания секторов</strong> и персональные коды, которые не видны в обычной таблице. Вы получите глубокий анализ предназначения, финансового потенциала, совместимости и индивидуальные рекомендации.</p>
-            <a href="https://t.me/anny_ann_t" target="_blank" class="btn btn-buy">Заказать полный разбор</a>
-        </div>
-        `;
-
         document.getElementById('result').innerHTML = html;
+    }
+
+    function showInterpretation() {
+        const data = window._matrixData;
+        if (!data) return;
+        const m = data.matrix;
+
+        const items = [
+            { title: 'Характер', text: interpretations.char[getCharKey(m[1])] },
+            { title: 'Энергия', text: interpretations.energy[getEnergyKey(m[2])] },
+            { title: 'Интерес', text: interpretations.interest[getInterestKey(m[3])] },
+            { title: 'Здоровье', text: interpretations.health[getHealthKey(m[4])] },
+            { title: 'Логика', text: interpretations.logic[getLogicKey(m[5])] },
+            { title: 'Труд', text: interpretations.labor[getLaborKey(m[6])] },
+            { title: 'Удача', text: interpretations.luck[getLuckKey(m[7])] },
+            { title: 'Долг', text: interpretations.duty[getDutyKey(m[8])] },
+            { title: 'Память', text: interpretations.memory[getMemoryKey(m[9])] },
+            { title: 'Цель', text: interpretations.goal[getExternalKey(data.goal)] },
+            { title: 'Семья', text: interpretations.family[getExternalKey(data.family)] },
+            { title: 'Привычки', text: interpretations.habits[getExternalKey(data.habits)] },
+            { title: 'Быт', text: interpretations.life[data.life <= 2 ? '0-2' : '3+'] },
+            { title: 'Темперамент', text: interpretations.temp[getTempKey(data.temperament)] },
+            { title: 'Число Судьбы ' + data.fateNumber, text: 'Это ваш главный урок и дар. Чтобы узнать его значение, закажите полный разбор.' }
+        ];
+
+        let html = '<h3>Краткая расшифровка вашей матрицы</h3>';
+        items.forEach(item => {
+            html += `<div class="interp-item"><span class="interp-title">${item.title}</span><div class="interp-text">${item.text}</div></div>`;
+        });
+        const block = document.getElementById('interpBlock');
+        block.innerHTML = html;
+        block.style.display = 'block';
     }
 </script>
 
 <!-- Блок с контактами и правовой информацией -->
 <div class="legal-block">
     <p style="margin-bottom:5px;">Применяется метод статистического психоанализа Ольги Перцевой</p>
-    <div style="margin: 10px 0;">
-        <a href="https://t.me/anny_ann_t" target="_blank" class="btn btn-tg" style="margin:5px;">📱 Написать в Telegram</a>
-        <a href="https://www.instagram.com/anny_ann_t?igsh=MW95ZXV5a29ob2I4dQ%3D%3D&utm_source=qr" target="_blank" class="btn btn-inst" style="margin:5px;">📸 Написать в Instagram</a>
+    <div class="social-buttons">
+        <a href="https://t.me/anny_ann_t" target="_blank" class="social-btn tg-btn">📱 Написать в Telegram</a>
+        <a href="https://www.instagram.com/anny_ann_t?igsh=MW95ZXV5a29ob2I4dQ%3D%3D&utm_source=qr" target="_blank" class="social-btn insta-btn">📸 Написать в Instagram</a>
     </div>
     <p class="warning">* Instagram принадлежит компании Meta, признанной экстремистской и запрещённой на территории РФ</p>
 
