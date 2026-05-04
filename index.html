@@ -309,7 +309,16 @@
         }
     };
 
-    function getCharKey(val) { if (val <= 1) return '0-1'; if (val === 2) return '2'; if (val === 3) return '3'; return '4+'; }
+    // Функции ключей
+    function getCharKey(val, dutyVal) {
+        if (val === 0) {
+            return dutyVal === 0 ? '0-1' : '2';
+        }
+        if (val <= 1) return '0-1';
+        if (val === 2) return '2';
+        if (val === 3) return '3';
+        return '4+';
+    }
     function getEnergyKey(val) { if (val <= 1) return '0-1'; if (val === 2) return '2'; return '3+'; }
     function getInterestKey(val) { if (val <= 1) return '0-1'; if (val === 2) return '2'; return '3+'; }
     function getHealthKey(val) { if (val === 0) return '0'; if (val === 1) return '1'; return '2+'; }
@@ -423,7 +432,7 @@
         const m = data.matrix;
 
         const items = [
-            { title: 'Характер', text: interpretations.char[getCharKey(m[1])] },
+            { title: 'Характер', text: interpretations.char[getCharKey(m[1], m[8])] },
             { title: 'Энергия', text: interpretations.energy[getEnergyKey(m[2])] },
             { title: 'Интерес', text: interpretations.interest[getInterestKey(m[3])] },
             { title: 'Здоровье', text: interpretations.health[getHealthKey(m[4])] },
